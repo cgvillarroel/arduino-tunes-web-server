@@ -1,0 +1,2 @@
+default_fqbn: arduino:megaavr:uno2018
+default_port: COM4
