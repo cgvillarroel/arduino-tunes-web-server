@@ -9,7 +9,9 @@
 #define AUDIO_PIN 8
 #define CONNECT_REATTEMPT_DELAY 10
 
-#define NOTE_LENGTH 200
+#define MAX_MELODY_LENGTH 16
+
+enum class ParseState { Start, Query, Title, Tempo, Notes, Done };
 
 const char *SSID = "HG8145V5_218F0";
 const char *PASS = "znjuQ5ku";
@@ -28,7 +30,7 @@ void setup(void) {
   Serial.begin(9600);
   while (!Serial)
     ;
-  (void)logger.setLogLevel(LogLevel::Info);
+  (void)logger.setLogLevel(LogLevel::Debug);
   (void)logger.info(F("Serial port connected."));
 
   wifi_check();
