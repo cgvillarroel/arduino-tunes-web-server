@@ -2,7 +2,6 @@
 #include <WiFiNINA.h>
 #include <plogger.h>
 
-#define MAX_BRIGHTNESS 1
 #define RED_PIN 10
 #define GREEN_PIN 9
 #define BLUE_PIN 6
@@ -10,7 +9,9 @@
 #define AUDIO_PIN 8
 #define CONNECT_REATTEMPT_DELAY 10
 
-#define MAX_MELODY_LENGTH 16
+#define MAX_MELODY_LENGTH 32
+
+enum class Brightness { Off = 0, Half = 1, Max = 2 };
 
 enum class ParseState { Start, Query, Title, Tempo, Notes, Done, None };
 

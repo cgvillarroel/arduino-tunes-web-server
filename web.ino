@@ -23,23 +23,23 @@ void web_reply(MusicDetails *music) {
   (void)web_logAndSendLine(F("<label for=\"title\">Title</label><br />"));
   (void)web_logAndSend(F("<input name=\"title\" type=\"text\" value=\""));
   (void)web_logAndSend(String(music->title));
-   (void)web_logAndSendLine(F("\" /><br />"));
+  (void)web_logAndSendLine(F("\" /><br />"));
 
-   (void)web_logAndSendLine(F("<label for=\"tempo\">"
-                              "Tempo (BPM / beats per minute)"
-                              "</label><br />"));
-   (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\" value=\""));
-   (void)web_logAndSend(String(music->tempo));
-   (void)web_logAndSendLine(F("\" /><br />"));
+  (void)web_logAndSendLine(F("<label for=\"tempo\">"
+                             "Tempo (BPM / beats per minute)"
+                             "</label><br />"));
+  (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\" value=\""));
+  (void)web_logAndSend(String(music->tempo));
+  (void)web_logAndSendLine(F("\" /><br />"));
 
-   (void)web_logAndSendLine(F("<label for=\"notes\">Notes</label><br />"));
-   (void)web_logAndSendLine(F("<input name=\"notes\" type=\"text\" value=\""));
-   (void)web_logAndSend(String(music->notes));
-   (void)web_logAndSendLine(F("\" /><br />"));
+  (void)web_logAndSendLine(F("<label for=\"notes\">Notes</label><br />"));
+  (void)web_logAndSendLine(F("<input name=\"notes\" type=\"text\" value=\""));
+  (void)web_logAndSend(String(music->notes));
+  (void)web_logAndSendLine(F("\" /><br />"));
 
-   (void)web_logAndSendLine(F("<button type=\"submit\">Play!</button>"));
-   (void)web_logAndSendLine(F("</form>"));
-   (void)web_logAndSendLine(F(""));
+  (void)web_logAndSendLine(F("<button type=\"submit\">Play!</button>"));
+  (void)web_logAndSendLine(F("</form>"));
+  (void)web_logAndSendLine(F(""));
 }
 
 void web_parseQuery(QueryParserState *state) {
@@ -141,7 +141,7 @@ bool web_processRequest() {
                             .music = (MusicDetails){
                                 .title = F("The Lick"),
                                 .tempo = 80,
-                                .notes = F("D4E4F4G4E4 C4D4-"),
+                                .notes = F("C4D4E4F4G4A4B4"),
                             }};
 
   (void)logger.debug(F("Request:"));
