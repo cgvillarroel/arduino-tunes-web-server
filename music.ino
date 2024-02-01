@@ -1,29 +1,29 @@
 const int note_colors[][3]{
-    {(int)Brightness::Half, (int)Brightness::Off, (int)Brightness::Max}, // A4
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Half}, // B4
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Off},  // C4
-    {(int)Brightness::Max, (int)Brightness::Max, (int)Brightness::Off},  // D4
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Off},  // E4
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Half}, // F4
-    {(int)Brightness::Off, (int)Brightness::Half, (int)Brightness::Max}, // G4
+    {(int)LedPower::Half, (int)LedPower::Off, (int)LedPower::Max}, // A4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Half}, // B4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Off},  // C4
+    {(int)LedPower::Max, (int)LedPower::Max, (int)LedPower::Off},  // D4
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Off},  // E4
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Half}, // F4
+    {(int)LedPower::Off, (int)LedPower::Half, (int)LedPower::Max}, // G4
 
-    {(int)Brightness::Off, (int)Brightness::Off, (int)Brightness::Max}, // Ab4
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Max}, // Bb4
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Half}, // Cb4 (B3)
-    {(int)Brightness::Max, (int)Brightness::Half, (int)Brightness::Off}, // Db4
-    {(int)Brightness::Half, (int)Brightness::Max, (int)Brightness::Off}, // Eb4
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Off}, // Fb4 (E4)
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Max}, // Gb4
+    {(int)LedPower::Off, (int)LedPower::Off, (int)LedPower::Max},  // Ab4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Max},  // Bb4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Half}, // Cb4 (B3)
+    {(int)LedPower::Max, (int)LedPower::Half, (int)LedPower::Off}, // Db4
+    {(int)LedPower::Half, (int)LedPower::Max, (int)LedPower::Off}, // Eb4
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Off},  // Fb4 (E4)
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Max},  // Gb4
 
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Max}, // A#4
-    {(int)Brightness::Max, (int)Brightness::Off, (int)Brightness::Off}, // B#4 (C5)
-    {(int)Brightness::Max, (int)Brightness::Half, (int)Brightness::Off}, // C#4
-    {(int)Brightness::Half, (int)Brightness::Max, (int)Brightness::Off}, // D#4
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Half}, // E#4 (F4)
-    {(int)Brightness::Off, (int)Brightness::Max, (int)Brightness::Max}, // F#4
-    {(int)Brightness::Off, (int)Brightness::Off, (int)Brightness::Max}, // G#4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Max},  // A#4
+    {(int)LedPower::Max, (int)LedPower::Off, (int)LedPower::Off},  // B#4 (C5)
+    {(int)LedPower::Max, (int)LedPower::Half, (int)LedPower::Off}, // C#4
+    {(int)LedPower::Half, (int)LedPower::Max, (int)LedPower::Off}, // D#4
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Half}, // E#4 (F4)
+    {(int)LedPower::Off, (int)LedPower::Max, (int)LedPower::Max},  // F#4
+    {(int)LedPower::Off, (int)LedPower::Off, (int)LedPower::Max},  // G#4
 
-    {(int)Brightness::Off, (int)Brightness::Off, (int)Brightness::Off} // Off
+    {(int)LedPower::Off, (int)LedPower::Off, (int)LedPower::Off} // Off
 };
 
 const int note_freqs[] = {
@@ -44,7 +44,7 @@ const int note_freqs[] = {
     370, // Gb4
 
     466, // A#4
-    494, // B#4 (C5)
+    523, // B#4 (C5)
     277, // C#4
     311, // D#4
     349, // E#4 (F4)
@@ -52,7 +52,7 @@ const int note_freqs[] = {
     415, // G#4
 };
 
-void music_playMelody(int *melody, int **colors, int melody_length,
+void music_playMelody(int *melody, const int **colors, int melody_length,
                       int note_length) {
   if (melody_length > MAX_MELODY_LENGTH || melody_length == 0) {
     return;
@@ -64,15 +64,15 @@ void music_playMelody(int *melody, int **colors, int melody_length,
     analogWrite(BLUE_PIN, colors[i][2]);
     tone(AUDIO_PIN, melody[i]);
 
-		(void)logger.logHeader(LogLevel::Debug);
-		(void)Serial.print(F("Freq: "));
-		(void)Serial.print(melody[i]);
-		(void)Serial.print(F(" Red: "));
-		(void)Serial.print(colors[i][0]);
-		(void)Serial.print(F(" Green: "));
-		(void)Serial.print(colors[i][1]);
-		(void)Serial.print(F(" Blue: "));
-		(void)Serial.println(colors[i][2]);
+    (void)logger.logHeader(LogLevel::Debug);
+    (void)Serial.print(F("Freq: "));
+    (void)Serial.print(melody[i]);
+    (void)Serial.print(F(" Red: "));
+    (void)Serial.print(colors[i][0]);
+    (void)Serial.print(F(" Green: "));
+    (void)Serial.print(colors[i][1]);
+    (void)Serial.print(F(" Blue: "));
+    (void)Serial.println(colors[i][2]);
 
     delay(note_length);
   }
@@ -86,9 +86,9 @@ void music_playMelody(int *melody, int **colors, int melody_length,
 /// Converts a String into an array of frequencies
 /// String format: <note>[accidental (#|b)][octave]
 /// music_parseString(String("DEFGE CD-"));
-int music_parseString(const String &melody, int *frequencies, int **colors) {
+int music_parseString(const String &melody, int *frequencies, const int **colors) {
   int length = melody.length();
-	// the longest representation of a note is 3 characters (e.g. C#4)
+  // the longest representation of a note is 3 characters (e.g. C#4)
   int max_length = (MAX_MELODY_LENGTH * 3);
   if (length > max_length || length == 0) {
     return 0;
@@ -101,7 +101,7 @@ int music_parseString(const String &melody, int *frequencies, int **colors) {
   for (int i = 0; i < length; ++i) {
     char c = melody[i];
 
-    if (c == '#') {
+    if (c == 's') {
       freq_idx += 14;
       continue;
     }
@@ -121,25 +121,24 @@ int music_parseString(const String &melody, int *frequencies, int **colors) {
       double factor = pow(2, exponent);
       freq = note_freqs[freq_idx] * factor;
       frequencies[idx] = freq;
-      colors[idx] = note_colors[freq_idx];
+      colors[idx] = (const int *)note_colors[freq_idx];
       ++idx;
       continue;
     }
 
     if (c == '-') {
       frequencies[idx] = freq;
-      colors[idx] = note_colors[freq_idx];
+      colors[idx] = (const int *)note_colors[freq_idx];
       ++idx;
       continue;
     }
 
     if (c == ' ') {
       frequencies[idx] = 0;
-      colors[idx] = note_colors[21];
+      colors[idx] = (const int *)note_colors[21];
       ++idx;
       continue;
     }
-
   }
 
   return idx;
@@ -157,9 +156,9 @@ void music_handleRequest(MusicDetails *music) {
   lcd.print(music->title);
 
   int frequencies[MAX_MELODY_LENGTH] = {0};
-  int *colors[MAX_MELODY_LENGTH];
+  const int *colors[MAX_MELODY_LENGTH];
   int length = music_parseString(music->notes, frequencies, colors);
-	int note_length = (int)((double)15000 / (double)music->tempo);
+  int note_length = (int)((double)15000 / (double)music->tempo);
   music_playMelody(frequencies, colors, length, note_length);
 
   delay(1000);

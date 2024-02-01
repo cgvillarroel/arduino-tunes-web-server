@@ -116,7 +116,6 @@ void web_parseQuery(QueryParserState *state) {
     }
 
     state->music.notes = String(state->current_token.c_str());
-    state->music.notes.replace("%23", "#");
     state->music.notes.replace('+', ' ');
     state->current_token = F("");
 
@@ -133,7 +132,7 @@ void web_parseQuery(QueryParserState *state) {
   }
 }
 
-bool web_processRequest() {
+void web_processRequest() {
   QueryParserState state = {.c = ' ',
                             .parse_state = ParseState::Start,
                             .current_line = F(""),
