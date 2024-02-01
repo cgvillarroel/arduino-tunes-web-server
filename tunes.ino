@@ -48,15 +48,15 @@ void setup(void) {
   Serial.begin(9600);
   while (!Serial)
     ;
-  (void)logger.setLogLevel(LogLevel::Debug);
-  (void)logger.info(F("Serial port connected."));
+  (void)logger.setLogLevel(LogLevel::Info);
+  (void)logger.infoLine(F("Serial port connected."));
 
   lcd.init();
 
   wifi_check();
   wifi_connect();
 
-  (void)logger.info(F("Starting server."));
+  (void)logger.infoLine(F("Starting server."));
   server.begin();
   wifi_printStatus();
 }

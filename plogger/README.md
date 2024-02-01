@@ -30,13 +30,13 @@ void setup(void) {
     ;
   }
 
-  logger.info("Serial port connected.");
+  logger.infoLine("Serial port connected.");
 }
 
 void loop(void) {
   data = Serial.readStringUntil('\r');
   if (data && data.length() > 0) {
-    logger.info("Received data.");
+    logger.infoLine("Received data.");
 
     ansi.GreenFg();
     Serial.println(data);

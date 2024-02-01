@@ -64,15 +64,14 @@ void music_playMelody(int *melody, const int **colors, int melody_length,
     analogWrite(BLUE_PIN, colors[i][2]);
     tone(AUDIO_PIN, melody[i]);
 
-    (void)logger.logHeader(LogLevel::Debug);
-    (void)Serial.print(F("Freq: "));
-    (void)Serial.print(melody[i]);
-    (void)Serial.print(F(" Red: "));
-    (void)Serial.print(colors[i][0]);
-    (void)Serial.print(F(" Green: "));
-    (void)Serial.print(colors[i][1]);
-    (void)Serial.print(F(" Blue: "));
-    (void)Serial.println(colors[i][2]);
+    (void)logger.debug(F("Freq: "));
+    (void)logger.debug(String(melody[i]));
+    (void)logger.debug(F(" Red: "));
+    (void)logger.debug(String(colors[i][0]));
+    (void)logger.debug(F(" Green: "));
+    (void)logger.debug(String(colors[i][1]));
+    (void)logger.debug(F(" Blue: "));
+    (void)logger.debugLine(String(colors[i][2]));
 
     delay(note_length);
   }
@@ -145,9 +144,8 @@ int music_parseString(const String &melody, int *frequencies, const int **colors
 }
 
 void music_handleRequest(MusicDetails *music) {
-  (void)logger.logHeader(LogLevel::Info);
-  (void)Serial.print(F("Playing: "));
-  (void)Serial.println(music->title);
+  (void)logger.info(F("Playing: "));
+  (void)logger.infoLine(music->title);
 
   lcd.backlight();
   lcd.setCursor(0, 0);

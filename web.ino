@@ -4,13 +4,13 @@ void web_logAndSend(const String &message) {
 }
 
 void web_logAndSendLine(const String &message) {
-  (void)logger.debug(message);
+  (void)logger.debugLine(message);
   (void)client.println(message);
 };
 
 /// Parameters: whether to include the html form in the response
 void web_reply(MusicDetails *music) {
-  (void)logger.info(F("Responding to request."));
+  (void)logger.infoLine(F("Responding to request."));
   (void)web_logAndSendLine(F("HTTP/1.1 200 OK"));
 
   (void)web_logAndSendLine(F("Content-type:text/html"));
@@ -83,12 +83,12 @@ void web_parseQuery(QueryParserState *state) {
         state->current_line.equals("GET /?")) {
       state->current_token = F("");
       state->parse_state = ParseState::Query;
-      (void)logger.debug("Parsing query");
+      (void)logger.debugLine("Parsing query");
     }
 
     if (state->current_line.length() > 6) {
       state->parse_state = ParseState::None;
-      (void)logger.debug("Done parsing query");
+      (void)logger.debugLine("Done parsing query");
     }
     return;
 
@@ -100,15 +100,15 @@ void web_parseQuery(QueryParserState *state) {
     if (state->current_token.equals("title=")) {
       state->current_token = F("");
       state->parse_state = ParseState::Title;
-      (void)logger.debug("Parsing title");
+      (void)logger.debugLine("Parsing title");
     } else if (state->current_token.equals("tempo=")) {
       state->current_token = F("");
       state->parse_state = ParseState::Tempo;
-      (void)logger.debug("Parsing tempo");
+      (void)logger.debugLine("Parsing tempo");
     } else if (state->current_token.equals("notes=")) {
       state->current_token = F("");
       state->parse_state = ParseState::Notes;
-      (void)logger.debug("Parsing notes");
+      (void)logger.debugLine("Parsing notes");
     };
     return;
 
@@ -176,7 +176,7 @@ void web_processRequest() {
                                 .notes = F("C4D4E4F4G4A4B4"),
                             }};
 
-  (void)logger.debug(F("Request:"));
+  (void)logger.debugLine(F("Request:"));
 
   while (client.connected()) {
     if (!client.available()) {
@@ -188,21 +188,18 @@ void web_processRequest() {
     if (state.c == '\n') {
       if (state.current_line.length() > 0) {
         // if the current line has stuff, reset the line and keep going
-        (void)logger.debug(state.current_line);
+        (void)logger.debugLine(state.current_line);
         state.current_line = F("");
       } else {
         // if there are 2 new lines in a row, it's the end of the request
-        (void)logger.logHeader(LogLevel::Info);
-        (void)Serial.print(F("Title: "));
-        (void)Serial.println(state.music.title);
+        (void)logger.info(F("Title: "));
+        (void)logger.infoLine(state.music.title);
 
-        (void)logger.logHeader(LogLevel::Info);
-        (void)Serial.print(F("Tempo: "));
-        (void)Serial.println(state.music.tempo);
+        (void)logger.info(F("Tempo: "));
+        (void)logger.infoLine(state.music.tempo);
 
-        (void)logger.logHeader(LogLevel::Info);
-        (void)Serial.print(F("Notes: "));
-        (void)Serial.println(state.music.notes);
+        (void)logger.info(F("Notes: "));
+        (void)logger.infoLine(state.music.notes);
 
         web_reply(&state.music);
 
@@ -232,11 +229,11 @@ void web_run(void) {
 
   String current_line = F("");
   if (client.connected()) {
-    (void)logger.info(F("Client connected."));
-    (void)logger.info(F("Receiving request."));
+    (void)logger.infoLine(F("Client connected."));
+    (void)logger.infoLine(F("Receiving request."));
     web_processRequest();
   }
 
   client.stop();
-  (void)logger.info(F("Client disconnected."));
+  (void)logger.infoLine(F("Client disconnected."));
 }

@@ -7,36 +7,34 @@ void wifi_check(void) {
 
   String firmware_ver = WiFi.firmwareVersion();
   if (firmware_ver < "1.0.0") {
-    (void)logger.warning(F("WiFi module firmware is outdated."));
+    (void)logger.warn(F("WiFi module firmware is outdated."));
   }
 }
 
 void wifi_connect(void) {
   while (status != WL_CONNECTED) {
-    (void)logger.logHeader(LogLevel::Info);
-    (void)Serial.print(F("Attempting to connect to SSID: "));
-    (void)Serial.println(SSID);
+    (void)logger.info(F("Attempting to connect to SSID: "));
+    (void)logger.infoLine(SSID);
     status = WiFi.begin(SSID, PASS);
     delay(CONNECT_REATTEMPT_DELAY * 1000);
   }
 }
 
 void wifi_printStatus(void) {
-  (void)logger.logHeader(LogLevel::Info);
-  (void)Serial.print(F("SSID: "));
-  (void)Serial.println(WiFi.SSID());
+  (void)logger.info(F("SSID: "));
+  (void)logger.infoLine(WiFi.SSID());
 
   IPAddress ip = WiFi.localIP();
-  (void)logger.logHeader(LogLevel::Info);
-  (void)Serial.print(F("IP Address: "));
-  (void)Serial.println(ip);
+  String ip_string = String(ip[0]) + F(".") + String(ip[1]) + F(".") +
+                     String(ip[2]) + F(".") + String(ip[3]);
 
-  (void)logger.logHeader(LogLevel::Info);
-  (void)Serial.print(F("Signal Strength (RSSI): "));
-  (void)Serial.print(WiFi.RSSI());
-  (void)Serial.println(F(" dBm"));
+  (void)logger.info(F("IP Address: "));
+  (void)logger.infoLine(ip_string);
 
-  (void)logger.logHeader(LogLevel::Info);
-  (void)Serial.print("To see this page in action, open a browser to http://");
-  (void)Serial.println(ip);
+  (void)logger.info(F("Signal Strength (RSSI): "));
+  (void)logger.info(String(WiFi.RSSI()));
+  (void)logger.infoLine(F(" dBm"));
+
+  (void)logger.info("To see this page in action, open a browser to http://");
+  (void)logger.infoLine(ip_string);
 }
