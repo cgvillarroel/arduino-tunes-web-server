@@ -1,3 +1,4 @@
+#include <LiquidCrystal_I2C.h>
 #include <WiFiNINA.h>
 #include <plogger.h>
 
@@ -17,6 +18,8 @@ const char *SSID = "HG8145V5_218F0";
 const char *PASS = "znjuQ5ku";
 int status = WL_IDLE_STATUS;
 
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
 WiFiServer server(80);
 WiFiClient client = server.available();
 
@@ -32,6 +35,8 @@ void setup(void) {
     ;
   (void)logger.setLogLevel(LogLevel::Debug);
   (void)logger.info(F("Serial port connected."));
+
+  lcd.init();
 
   wifi_check();
   wifi_connect();

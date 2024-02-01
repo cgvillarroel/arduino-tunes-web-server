@@ -1,47 +1,30 @@
+void web_logAndSend(const String &message) {
+  (void)logger.debug(message);
+  (void)client.println(message);
+};
+
 void web_reply(void) {
   (void)logger.info(F("Responding to request."));
-  (void)client.println(F("HTTP/1.1 200 OK"));
-  (void)client.println(F("Content-type:text/html"));
-  (void)client.println();
+  (void)web_logAndSend(F("HTTP/1.1 200 OK"));
+  (void)web_logAndSend(F("Content-type:text/html"));
+  (void)web_logAndSend(F(""));
 
   // html buttons
-  (void)client.println(F("<form>"));
-  (void)client.println(F("<label for=\"title\">Title</label><br />"));
-  (void)client.println(F("<input name=\"title\" type=\"text\""
+  (void)web_logAndSend(F("<form>"));
+  (void)web_logAndSend(F("<label for=\"title\">Title</label><br />"));
+  (void)web_logAndSend(F("<input name=\"title\" type=\"text\""
                          "value=\"My Song\"/><br />"));
-  (void)client.println(F("<label for=\"tempo\">"
+  (void)web_logAndSend(F("<label for=\"tempo\">"
                          "Tempo (BPM / beats per minute)"
                          "</label><br />"));
-  (void)client.println(F("<input name=\"tempo\" type=\"number\""
+  (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\""
                          "value=\"100\"/><br />"));
-  (void)client.println(F("<label for=\"notes\">Notes</label><br />"));
-  (void)client.println(F("<input name=\"notes\" type=\"text\""
+  (void)web_logAndSend(F("<label for=\"notes\">Notes</label><br />"));
+  (void)web_logAndSend(F("<input name=\"notes\" type=\"text\""
                          "value=\"D4E4F4G4E4 C4D4-\" /><br />"));
-  (void)client.println(F("<button type=\"submit\">Play!</button>"));
-  (void)client.println(F("</form>"));
-  (void)client.println();
-
-  (void)logger.debug(F("Reply:"));
-  (void)logger.debug(F("HTTP/1.1 200 OK"));
-  (void)logger.debug(F("Content-type:text/html"));
-  (void)logger.debug(F(""));
-
-  // html buttons
-  (void)logger.debug(F("<form>"));
-  (void)logger.debug(F("<label for=\"title\">Title</label><br />"));
-  (void)logger.debug(F("<input name=\"title\" type=\"text\""
-                       "value=\"My Song\"/><br />"));
-  (void)logger.debug(F("<label for=\"tempo\">"
-                       "Tempo (BPM / beats per minute)"
-                       "</label><br />"));
-  (void)logger.debug(F("<input name=\"tempo\" type=\"number\""
-                       "value=\"100\"/><br />"));
-  (void)logger.debug(F("<label for=\"notes\">Notes</label><br />"));
-  (void)logger.debug(F("<input name=\"notes\" type=\"text\""
-                       "value=\"D4E4F4G4E4 C4D4-\" /><br />"));
-  (void)logger.debug(F("<button type=\"submit\">Play!</button>"));
-  (void)logger.debug(F("</form>"));
-  (void)logger.debug(F(""));
+  (void)web_logAndSend(F("<button type=\"submit\">Play!</button>"));
+  (void)web_logAndSend(F("</form>"));
+  (void)web_logAndSend(F(""));
 }
 
 void web_parseQuery(ParseState &parse_state, const String &current_line,
@@ -50,7 +33,7 @@ void web_parseQuery(ParseState &parse_state, const String &current_line,
   switch (parse_state) {
 
   case ParseState::Start:
-    if (current_line.endsWith("GET /?")) {
+    if (current_line.length() == 6 && current_line.endsWith("GET /?")) {
       current_token = F("");
       parse_state = ParseState::Query;
       (void)logger.debug("Parsing query");
@@ -60,9 +43,13 @@ void web_parseQuery(ParseState &parse_state, const String &current_line,
       parse_state = ParseState::Done;
       (void)logger.debug("Done parsing query");
     }
-    break;
+    return;
 
   case ParseState::Query:
+    if (c != '=') {
+      return;
+    }
+
     if (current_token.endsWith("title=")) {
       current_token = F("");
       parse_state = ParseState::Title;
@@ -76,56 +63,58 @@ void web_parseQuery(ParseState &parse_state, const String &current_line,
       parse_state = ParseState::Notes;
       (void)logger.debug("Parsing notes");
     };
-    break;
+    return;
 
   case ParseState::Title:
+    if (c != '&' && c != ' ') {
+      return;
+    }
+
+    title = String(current_token.c_str());
+    title.replace('+', ' ');
+    current_token = F("");
+
     if (c == '&') {
-      title = String(current_token.c_str());
-      title.replace('+', ' ');
-      current_token = F("");
       parse_state = ParseState::Query;
-    }
-    if (c == ' ') {
-      title = String(current_token.c_str());
-      title.replace('+', ' ');
-      current_token = F("");
+    } else {
       parse_state = ParseState::Done;
-      (void)logger.debug("Done parsing query");
     }
-    break;
+    return;
 
   case ParseState::Tempo:
+    if (c != '&' && c != ' ') {
+      return;
+    }
+
+    *tempo = current_token.toInt();
+    current_token = F("");
+
     if (c == '&') {
-      *tempo = current_token.toInt();
-      current_token = F("");
       parse_state = ParseState::Query;
-    }
-    if (c == ' ') {
-      *tempo = current_token.toInt();
-      current_token = F("");
+    } else {
       parse_state = ParseState::Done;
-      (void)logger.debug("Done parsing query");
     }
-    break;
+    return;
 
   case ParseState::Notes:
+    if (c != '&' && c != ' ') {
+      return;
+    }
+
+    notes = String(current_token.c_str());
+    title.replace('+', ' ');
+    notes.replace("%23", "#");
+    current_token = F("");
+
     if (c == '&') {
-      notes = String(current_token.c_str());
-      notes.replace("%23", "#");
-      current_token = F("");
       parse_state = ParseState::Query;
-    }
-    if (c == ' ') {
-      notes = String(current_token.c_str());
-      notes.replace("%23", "#");
-      current_token = F("");
+    } else {
       parse_state = ParseState::Done;
-      (void)logger.debug("Done parsing query");
     }
-    break;
+    return;
 
   case ParseState::Done:
-    break;
+    return;
   }
 }
 
@@ -165,9 +154,19 @@ bool web_processRequest() {
         (void)Serial.print(F("Notes: "));
         (void)Serial.println(notes);
 
+        lcd.backlight();
+        lcd.setCursor(0, 0);
+        lcd.print(F("Title:"));
+        lcd.setCursor(0, 1);
+        lcd.print(title);
         unsigned int frequencies[MAX_MELODY_LENGTH] = {0};
         int length = music_parseString(notes, frequencies);
-        music_playMelody(frequencies, length, (int)((double)15000 / (double)tempo));
+        music_playMelody(frequencies, length,
+                         (int)((double)15000 / (double)tempo));
+
+        delay(1000);
+        lcd.clear();
+        lcd.noBacklight();
 
         web_reply();
         break;

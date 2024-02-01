@@ -41,7 +41,8 @@ void music_playMelody(unsigned int *melody, int melody_length,
 }
 
 /// Converts a String into an array of frequencies
-/// String format: <note>[accidental (#|b)]<octave>
+/// String format: <note>[accidental (#|b)][octave]
+/// music_parseString(String("DEFGE CD-"));
 int music_parseString(const String &melody,
                       unsigned int *frequencies) {
   int length = melody.length();
