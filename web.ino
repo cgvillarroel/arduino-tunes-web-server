@@ -1,130 +1,148 @@
 void web_logAndSend(const String &message) {
+  (void)logger.logHeader(LogLevel::Debug);
+  (void)Serial.println(message);
+  (void)client.print(message);
+}
+
+void web_logAndSendLine(const String &message) {
   (void)logger.debug(message);
   (void)client.println(message);
 };
 
-void web_reply(void) {
+/// Parameters: whether to include the html form in the response
+void web_reply(MusicDetails *music) {
   (void)logger.info(F("Responding to request."));
-  (void)web_logAndSend(F("HTTP/1.1 200 OK"));
-  (void)web_logAndSend(F("Content-type:text/html"));
-  (void)web_logAndSend(F(""));
+  (void)web_logAndSendLine(F("HTTP/1.1 200 OK"));
+
+  (void)web_logAndSendLine(F("Content-type:text/html"));
+  (void)web_logAndSendLine(F(""));
 
   // html buttons
-  (void)web_logAndSend(F("<form>"));
-  (void)web_logAndSend(F("<label for=\"title\">Title</label><br />"));
-  (void)web_logAndSend(F("<input name=\"title\" type=\"text\""
-                         "value=\"My Song\"/><br />"));
-  (void)web_logAndSend(F("<label for=\"tempo\">"
-                         "Tempo (BPM / beats per minute)"
-                         "</label><br />"));
-  (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\""
-                         "value=\"100\"/><br />"));
-  (void)web_logAndSend(F("<label for=\"notes\">Notes</label><br />"));
-  (void)web_logAndSend(F("<input name=\"notes\" type=\"text\""
-                         "value=\"D4E4F4G4E4 C4D4-\" /><br />"));
-  (void)web_logAndSend(F("<button type=\"submit\">Play!</button>"));
-  (void)web_logAndSend(F("</form>"));
-  (void)web_logAndSend(F(""));
+  (void)web_logAndSendLine(F("<form>"));
+
+  (void)web_logAndSendLine(F("<label for=\"title\">Title</label><br />"));
+  (void)web_logAndSend(F("<input name=\"title\" type=\"text\" value=\""));
+  (void)web_logAndSend(String(music->title));
+   (void)web_logAndSendLine(F("\" /><br />"));
+
+   (void)web_logAndSendLine(F("<label for=\"tempo\">"
+                              "Tempo (BPM / beats per minute)"
+                              "</label><br />"));
+   (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\" value=\""));
+   (void)web_logAndSend(String(music->tempo));
+   (void)web_logAndSendLine(F("\" /><br />"));
+
+   (void)web_logAndSendLine(F("<label for=\"notes\">Notes</label><br />"));
+   (void)web_logAndSendLine(F("<input name=\"notes\" type=\"text\" value=\""));
+   (void)web_logAndSend(String(music->notes));
+   (void)web_logAndSendLine(F("\" /><br />"));
+
+   (void)web_logAndSendLine(F("<button type=\"submit\">Play!</button>"));
+   (void)web_logAndSendLine(F("</form>"));
+   (void)web_logAndSendLine(F(""));
 }
 
-void web_parseQuery(ParseState &parse_state, const String &current_line,
-                    String &current_token, String &title, String &notes,
-                    int *tempo, char c) {
-  switch (parse_state) {
+void web_parseQuery(QueryParserState *state) {
+  switch (state->parse_state) {
 
   case ParseState::Start:
-    if (current_line.length() == 6 && current_line.endsWith("GET /?")) {
-      current_token = F("");
-      parse_state = ParseState::Query;
+    if (state->current_line.length() == 6 &&
+        state->current_line.equals("GET /?")) {
+      state->current_token = F("");
+      state->parse_state = ParseState::Query;
       (void)logger.debug("Parsing query");
     }
 
-    if (current_line.length() > 6) {
-      parse_state = ParseState::Done;
+    if (state->current_line.length() > 6) {
+      state->parse_state = ParseState::None;
       (void)logger.debug("Done parsing query");
     }
     return;
 
   case ParseState::Query:
-    if (c != '=') {
+    if (state->c != '=') {
       return;
     }
 
-    if (current_token.endsWith("title=")) {
-      current_token = F("");
-      parse_state = ParseState::Title;
+    if (state->current_token.equals("title=")) {
+      state->current_token = F("");
+      state->parse_state = ParseState::Title;
       (void)logger.debug("Parsing title");
-    } else if (current_token.endsWith("tempo=")) {
-      current_token = F("");
-      parse_state = ParseState::Tempo;
+    } else if (state->current_token.equals("tempo=")) {
+      state->current_token = F("");
+      state->parse_state = ParseState::Tempo;
       (void)logger.debug("Parsing tempo");
-    } else if (current_token.endsWith("notes=")) {
-      current_token = F("");
-      parse_state = ParseState::Notes;
+    } else if (state->current_token.equals("notes=")) {
+      state->current_token = F("");
+      state->parse_state = ParseState::Notes;
       (void)logger.debug("Parsing notes");
     };
     return;
 
   case ParseState::Title:
-    if (c != '&' && c != ' ') {
+    if (state->c != '&' && state->c != ' ') {
       return;
     }
 
-    title = String(current_token.c_str());
-    title.replace('+', ' ');
-    current_token = F("");
+    state->music.title = String(state->current_token.c_str());
+    state->music.title.replace('+', ' ');
+    state->current_token = F("");
 
-    if (c == '&') {
-      parse_state = ParseState::Query;
+    if (state->c == '&') {
+      state->parse_state = ParseState::Query;
     } else {
-      parse_state = ParseState::Done;
+      state->parse_state = ParseState::Done;
     }
     return;
 
   case ParseState::Tempo:
-    if (c != '&' && c != ' ') {
+    if (state->c != '&' && state->c != ' ') {
       return;
     }
 
-    *tempo = current_token.toInt();
-    current_token = F("");
+    state->music.tempo = state->current_token.toInt();
+    state->current_token = F("");
 
-    if (c == '&') {
-      parse_state = ParseState::Query;
+    if (state->c == '&') {
+      state->parse_state = ParseState::Query;
     } else {
-      parse_state = ParseState::Done;
+      state->parse_state = ParseState::Done;
     }
     return;
 
   case ParseState::Notes:
-    if (c != '&' && c != ' ') {
+    if (state->c != '&' && state->c != ' ') {
       return;
     }
 
-    notes = String(current_token.c_str());
-    title.replace('+', ' ');
-    notes.replace("%23", "#");
-    current_token = F("");
+    state->music.notes = String(state->current_token.c_str());
+    state->music.notes.replace("%23", "#");
+    state->music.notes.replace('+', ' ');
+    state->current_token = F("");
 
-    if (c == '&') {
-      parse_state = ParseState::Query;
+    if (state->c == '&') {
+      state->parse_state = ParseState::Query;
     } else {
-      parse_state = ParseState::Done;
+      state->parse_state = ParseState::Done;
     }
     return;
 
   case ParseState::Done:
+  case ParseState::None:
     return;
   }
 }
 
 bool web_processRequest() {
-  ParseState parse_state = ParseState::Start;
-  String current_line = F("");
-  String current_token = F("");
-  String title = F("");
-  String notes = F("");
-  int tempo = 0;
+  QueryParserState state = {.c = ' ',
+                            .parse_state = ParseState::Start,
+                            .current_line = F(""),
+                            .current_token = F(""),
+                            .music = (MusicDetails){
+                                .title = F("The Lick"),
+                                .tempo = 80,
+                                .notes = F("D4E4F4G4E4 C4D4-"),
+                            }};
 
   (void)logger.debug(F("Request:"));
 
@@ -133,54 +151,45 @@ bool web_processRequest() {
       break;
     }
 
-    char c = client.read();
+    state.c = client.read();
 
-    if (c == '\n') {
-      if (current_line.length() > 0) {
+    if (state.c == '\n') {
+      if (state.current_line.length() > 0) {
         // if the current line has stuff, reset the line and keep going
-        (void)logger.debug(current_line);
-        current_line = F("");
+        (void)logger.debug(state.current_line);
+        state.current_line = F("");
       } else {
         // if there are 2 new lines in a row, it's the end of the request
         (void)logger.logHeader(LogLevel::Info);
         (void)Serial.print(F("Title: "));
-        (void)Serial.println(title);
+        (void)Serial.println(state.music.title);
 
         (void)logger.logHeader(LogLevel::Info);
         (void)Serial.print(F("Tempo: "));
-        (void)Serial.println(tempo);
+        (void)Serial.println(state.music.tempo);
 
         (void)logger.logHeader(LogLevel::Info);
         (void)Serial.print(F("Notes: "));
-        (void)Serial.println(notes);
+        (void)Serial.println(state.music.notes);
 
-        lcd.backlight();
-        lcd.setCursor(0, 0);
-        lcd.print(F("Title:"));
-        lcd.setCursor(0, 1);
-        lcd.print(title);
-        unsigned int frequencies[MAX_MELODY_LENGTH] = {0};
-        int length = music_parseString(notes, frequencies);
-        music_playMelody(frequencies, length,
-                         (int)((double)15000 / (double)tempo));
+        web_reply(&state.music);
 
-        delay(1000);
-        lcd.clear();
-        lcd.noBacklight();
+        // if there's a query, play it
+        if (state.parse_state == ParseState::Done) {
+          music_handleRequest(&state.music);
+        }
 
-        web_reply();
-        break;
+        return;
       }
-    } else if (c != '\r') {
-      current_line += c;
+    } else if (state.c != '\r') {
+      state.current_line += state.c;
 
-      if (c != '&' && c != ' ') {
-        current_token += c;
+      if (state.c != '&' && state.c != ' ') {
+        state.current_token += state.c;
       }
     }
 
-    web_parseQuery(parse_state, current_line, current_token, title, notes,
-                   &tempo, c);
+    web_parseQuery(&state);
   }
 }
 

@@ -1,4 +1,4 @@
-const unsigned int note_freqs[] = {
+const int note_freqs[] = {
     440, // A4
     494, // B4
     262, // C4
@@ -24,15 +24,13 @@ const unsigned int note_freqs[] = {
     415, // G#4
 };
 
-void music_playMelody(unsigned int *melody, int melody_length,
-                      unsigned int note_length) {
+void music_playMelody(int *melody, int melody_length,
+                      int note_length) {
   if (melody_length > 16 || melody_length == 0) {
     return;
   }
 
   for (int i = 0; i < melody_length; ++i) {
-		(void)logger.logHeader(LogLevel::Debug);
-		(void)Serial.println(String(melody[i]));
     tone(AUDIO_PIN, melody[i]);
     delay(note_length);
   }
@@ -44,7 +42,7 @@ void music_playMelody(unsigned int *melody, int melody_length,
 /// String format: <note>[accidental (#|b)][octave]
 /// music_parseString(String("DEFGE CD-"));
 int music_parseString(const String &melody,
-                      unsigned int *frequencies) {
+                      int *frequencies) {
   int length = melody.length();
   int max_length = (MAX_MELODY_LENGTH * 3);
   if (length > max_length || length == 0) {
@@ -52,36 +50,37 @@ int music_parseString(const String &melody,
   }
 
   int idx = 0;
-  int freqIdx = 0;
-  unsigned int freq = 0;
+  int freq_idx = 0;
+  int freq = 0;
 
   for (int i = 0; i < length; ++i) {
     char c = melody[i];
 
-    if (c == '+') {
+    if (c == ' ') {
       frequencies[idx] = 0;
       ++idx;
       continue;
     }
 
     if (isAlpha(c)) {
-      freqIdx = c - 'A';
+      freq_idx = c - 'A';
       continue;
     }
 
     if (c == '#') {
-      freqIdx += 7;
+      freq_idx += 7;
       continue;
     }
 
     if (c == 'b') {
-      freqIdx += 14;
+      freq_idx += 14;
       continue;
     }
 
     if (isDigit(c)) {
-      // double exponent = (double)((c - '0') - 4);
-      freq = note_freqs[freqIdx];
+      double exponent = (double)((c - '0') - 4);
+			double factor = pow(2, exponent);
+      freq = note_freqs[freq_idx] * factor;
       frequencies[idx] = freq;
       ++idx;
       continue;
@@ -95,4 +94,25 @@ int music_parseString(const String &melody,
   }
 
 	return idx + 1;
+}
+
+void music_handleRequest(MusicDetails *music) {
+	(void)logger.logHeader(LogLevel::Info);
+	(void)Serial.print(F("Playing: "));
+	(void)Serial.println(music->title);
+
+	lcd.backlight();
+	lcd.setCursor(0, 0);
+	lcd.print(F("Title:"));
+	lcd.setCursor(0, 1);
+	lcd.print(music->title);
+
+	int frequencies[MAX_MELODY_LENGTH] = {0};
+	int length = music_parseString(music->notes, frequencies);
+	music_playMelody(frequencies, length,
+									(int)((double)15000 / (double)music->tempo));
+
+	delay(1000);
+	lcd.clear();
+	lcd.noBacklight();
 }

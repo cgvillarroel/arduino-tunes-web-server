@@ -12,7 +12,21 @@
 
 #define MAX_MELODY_LENGTH 16
 
-enum class ParseState { Start, Query, Title, Tempo, Notes, Done };
+enum class ParseState { Start, Query, Title, Tempo, Notes, Done, None };
+
+typedef struct MusicDetails {
+  String title;
+  int tempo;
+  String notes;
+} MusicDetails;
+
+typedef struct QueryParserState {
+  char c;
+  ParseState parse_state;
+  const String current_line;
+  String current_token;
+  MusicDetails music;
+} QueryParserState;
 
 const char *SSID = "HG8145V5_218F0";
 const char *PASS = "znjuQ5ku";
