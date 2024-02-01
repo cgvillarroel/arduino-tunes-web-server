@@ -55,7 +55,7 @@ void web_reply(MusicDetails *music) {
                              "<input name=\"title\" type=\"text\" value=\""
                              "Megalovania\" style=\"display:none;\" />"
                              "<input name=\"tempo\" type=\"number\""
-                             "value=\"200\" style=\"display:none;\" />"
+                             "value=\"240\" style=\"display:none;\" />"
                              "<input name=\"notes\" type=\"text\" value=\""
                              "D4 D4 D5   A4\" style=\"display:none;\" />"
                              "<button type=\"submit\">Megalovania</button>"
@@ -65,7 +65,7 @@ void web_reply(MusicDetails *music) {
                              "<input name=\"title\" type=\"text\" value=\""
                              "Shooting Stars\" style=\"display:none;\" />"
                              "<input name=\"tempo\" type=\"number\""
-                             "value=\"160\" style=\"display:none;\" />"
+                             "value=\"125\" style=\"display:none;\" />"
                              "<input name=\"notes\" type=\"text\" value=\""
                              "Ds4---- Ds4 E4   B3 Gs3\""
                              "style=\"display:none;\" />"
@@ -173,7 +173,7 @@ void web_processRequest() {
                             .music = (MusicDetails){
                                 .title = F("The Lick"),
                                 .tempo = 80,
-                                .notes = F("C4D4E4F4G4A4B4"),
+                                .notes = F("D4E4F4G4E4 C4D4-"),
                             }};
 
   (void)logger.debugLine(F("Request:"));
