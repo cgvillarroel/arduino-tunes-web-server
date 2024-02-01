@@ -144,12 +144,12 @@ int music_parseString(const String &melody, int *frequencies, const int **colors
 }
 
 void music_handleRequest(MusicDetails *music) {
-  (void)logger.info(F("Playing: "));
+  (void)logger.info(F("Playing:"));
   (void)logger.infoLine(music->title);
 
   lcd.backlight();
   lcd.setCursor(0, 0);
-  lcd.print(F("Title:"));
+  lcd.print(F("Playing:"));
   lcd.setCursor(0, 1);
   lcd.print(music->title);
 

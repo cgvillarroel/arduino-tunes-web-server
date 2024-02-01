@@ -11,7 +11,7 @@
 
 #define MAX_MELODY_LENGTH 64
 
-enum class LedPower { Off = 0, Half = 1, Max = 2 };
+enum class LedPower { Off = 0, Half = 10, Max = 20 };
 
 enum class ParseState { Start, Query, Title, Tempo, Notes, Done, None };
 
