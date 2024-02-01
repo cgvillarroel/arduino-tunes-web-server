@@ -16,10 +16,10 @@ Simple Arduino Uno Wifi Rev 2 web server that plays tunes.
 
 ## Usage (Arduino CLI)
 
-Clone this repository as `server`:
+Clone this repository as `tunes`:
 
 ```pwsh
-git clone https://github.com/cgvillarroel/arduino-web-server server
+git clone https://github.com/cgvillarroel/arduino-tunes-web-server tunes
 ```
 
 Install the PrettyLogger library (see `/plogger/README.md`).
