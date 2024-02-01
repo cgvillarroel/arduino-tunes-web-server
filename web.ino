@@ -1,6 +1,5 @@
 void web_logAndSend(const String &message) {
-  (void)logger.logHeader(LogLevel::Debug);
-  (void)Serial.println(message);
+  (void)logger.debug(message);
   (void)client.print(message);
 }
 
@@ -22,23 +21,57 @@ void web_reply(MusicDetails *music) {
 
   (void)web_logAndSendLine(F("<label for=\"title\">Title</label><br />"));
   (void)web_logAndSend(F("<input name=\"title\" type=\"text\" value=\""));
-  (void)web_logAndSend(String(music->title));
+  (void)web_logAndSend(music->title);
   (void)web_logAndSendLine(F("\" /><br />"));
 
   (void)web_logAndSendLine(F("<label for=\"tempo\">"
                              "Tempo (BPM / beats per minute)"
                              "</label><br />"));
+
   (void)web_logAndSend(F("<input name=\"tempo\" type=\"number\" value=\""));
   (void)web_logAndSend(String(music->tempo));
   (void)web_logAndSendLine(F("\" /><br />"));
 
-  (void)web_logAndSendLine(F("<label for=\"notes\">Notes</label><br />"));
-  (void)web_logAndSendLine(F("<input name=\"notes\" type=\"text\" value=\""));
-  (void)web_logAndSend(String(music->notes));
+  (void)web_logAndSendLine(F("<label for=\"notes\">"));
+  (void)web_logAndSend(F("Notes (16th notes)</label>"));
+  (void)web_logAndSendLine(F("<br />"));
+  (void)web_logAndSend(F("<input name=\"notes\" type=\"text\"value=\""));
+  (void)web_logAndSend(music->notes);
   (void)web_logAndSendLine(F("\" /><br />"));
-
   (void)web_logAndSendLine(F("<button type=\"submit\">Play!</button>"));
-  (void)web_logAndSendLine(F("</form>"));
+  (void)web_logAndSendLine(F("</form><br />"));
+
+  (void)web_logAndSendLine(F("<form>"
+                             "<input name=\"title\" type=\"text\""
+                             "value=\"The Lick\" style=\"display:none;\" />"
+                             "<input name=\"tempo\" type=\"number\""
+                             "value=\"80\" style=\"display:none;\" />"
+                             "<input name=\"notes\" type=\"text\" value=\""
+                             "D4E4F4G4E4 C4D4-\" style=\"display:none;\" />"
+                             "<button type=\"submit\">The Lick</button>"
+                             "</form><br />"));
+
+  (void)web_logAndSendLine(F("<form>"
+                             "<input name=\"title\" type=\"text\" value=\""
+                             "Megalovania\" style=\"display:none;\" />"
+                             "<input name=\"tempo\" type=\"number\""
+                             "value=\"200\" style=\"display:none;\" />"
+                             "<input name=\"notes\" type=\"text\" value=\""
+                             "D4 D4 D5   A4\" style=\"display:none;\" />"
+                             "<button type=\"submit\">Megalovania</button>"
+                             "</form><br />"));
+
+  (void)web_logAndSendLine(F("<form>"
+                             "<input name=\"title\" type=\"text\" value=\""
+                             "Shooting Stars\" style=\"display:none;\" />"
+                             "<input name=\"tempo\" type=\"number\""
+                             "value=\"160\" style=\"display:none;\" />"
+                             "<input name=\"notes\" type=\"text\" value=\""
+                             "Ds4---- Ds4 E4   B3 Gs3\""
+                             "style=\"display:none;\" />"
+                             "<button type=\"submit\">Shooting Stars</button>"
+                             "</form><br />"));
+
   (void)web_logAndSendLine(F(""));
 }
 

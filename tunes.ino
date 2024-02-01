@@ -9,7 +9,7 @@
 #define AUDIO_PIN 8
 #define CONNECT_REATTEMPT_DELAY 10
 
-#define MAX_MELODY_LENGTH 32
+#define MAX_MELODY_LENGTH 64
 
 enum class LedPower { Off = 0, Half = 1, Max = 2 };
 
